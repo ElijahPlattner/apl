@@ -1,0 +1,51 @@
+.navbar {
+    background-color: #1d9b36;
+    /* Navy background */
+    color: white;
+    /* White text */
+}
+
+.navbar-text {
+    color: white;
+}
+
+/* Button overrides */
+.btn-primary {
+    background-color: #1d9b36;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(88, 101, 242, 0.15);
+    font-weight: 600;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #7f8c85;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(88, 101, 242, 0.25);
+}
+
+.btn-secondary {
+    background-color: #23272A;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(35, 39, 42, 0.12);
+    font-weight: 600;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: #7f8c85;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(88, 101, 242, 0.18);
+}
+
+.btn {
+    padding: 0.5rem 1.5rem;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+}
