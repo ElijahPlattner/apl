@@ -1,6 +1,8 @@
 import sys
 import subprocess
 import time
+import json
+
 from pathlib import Path
 
 
@@ -119,8 +121,12 @@ def main():
         
         # End timer
         elapsed = time.time() - start_time
-        print(f"Execution time: {elapsed:.6f} seconds")
-        
+
+        print(json.dumps({
+            "caps_words": caps_words,
+            "uncommon_words": uncommon_words,
+            "unknown_words": unknown_words
+        }))
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)

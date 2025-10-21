@@ -12,6 +12,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 import os
+import json, re
+
 
 
 @api_view(['GET'])
@@ -44,27 +46,47 @@ class AnalyzePDFView(APIView):
         try:
             print("Running analyzer at:", analyzer_script)
             # Run the analyzer as a subprocess
+            # Run the analyzer
             result = subprocess.run(
                 ["python3", str(analyzer_script), tmp_pdf_path],
                 capture_output=True,
                 text=True,
                 timeout=60
             )
-
-            # Remove the temp file
             os.remove(tmp_pdf_path)
 
-            # Check for errors
             if result.returncode != 0:
-                return Response(
-                    {"error": result.stderr.strip() or "Analyzer failed."},
-                    status=500
-                )
+                return Response({"error": result.stderr.strip()}, status=500)
 
-            # The analyzer prints results to stdout, so return that
+            # Extract JSON from stdout (ignores print statements before it)
+            stdout_text = result.stdout.strip()
+
+            match = re.search(r'\{.*\}', stdout_text, re.DOTALL)
+            if not match:
+                return Response({
+                    "error": "No JSON output found from analyzer.",
+                    "raw_output": stdout_text
+                }, status=500)
+
+            json_str = match.group(0)
+            try:
+                analysis_output = json.loads(json_str)
+            except json.JSONDecodeError:
+                return Response({
+                    "error": "Invalid JSON format from analyzer.",
+                    "raw_output": stdout_text
+                }, status=500)
+
+            # Now you can access word lists directly
+            caps_list = analysis_output.get("caps_words", [])
+            uncommon_list = analysis_output.get("uncommon_words", [])
+            unknown_list = analysis_output.get("unknown_words", [])
+
             return Response({
                 "message": "PDF analyzed successfully.",
-                "output": result.stdout
+                "caps_words": caps_list,
+                "uncommon_words": uncommon_list,
+                "unknown_words": unknown_list,
             })
 
         except subprocess.TimeoutExpired:
