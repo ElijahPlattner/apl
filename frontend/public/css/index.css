@@ -1,0 +1,14 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: hidden;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #ffffff 92%, #eafbe6 97%, #1d9b36 100%);
+    background: linear-gradient(to bottom, #fafafa, #fafafa, #1d9b364f), #ffffff;
+    color: #000000;
+}
