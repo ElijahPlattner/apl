@@ -11,7 +11,7 @@ function Register() {
 
     const handleRegister = () => {
         setError('');
-        fetch('http://localhost:8000/api/register/', {
+        fetch('http://127.0.0.1:8000/api/register/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -30,7 +30,7 @@ function Register() {
                 return res.json();
             })
             .then(data => {
-                window.location.href = '/DoStuff';
+                window.location.href = '/Dashboard';
             })
             .catch(err => {
                 console.log('Registration error:', err.message); // Log error to console
@@ -43,30 +43,28 @@ function Register() {
             <div className="card p-4 shadow" style={{ width: '600px' }}>
                 <h2 className="mb-4 text-center">Register</h2>
                 {error && <div className="alert alert-danger">{error}</div>}
-                {/* Username and Email in one row */}
-                <div className="row mb-3">
-                    <div className="col">
-                        <label htmlFor="username" className="form-label">Username</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="username"
-                            placeholder="Enter your username"
-                            value={username}
-                            onChange={e => setUsername(e.target.value)}
-                        />
-                    </div>
-                    <div className="col">
-                        <label htmlFor="email" className="form-label">Email</label>
-                        <input
-                            type="email"
-                            className="form-control"
-                            id="email"
-                            placeholder="Enter your email"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                        />
-                    </div>
+                {/* Username and Email stacked vertically */}
+                <div className="mb-3">
+                    <label htmlFor="username" className="form-label">Username</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="username"
+                        placeholder="Enter your username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="email" className="form-label">Email</label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        id="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                    />
                 </div>
                 {/* First Name and Last Name in one row */}
                 <div className="row mb-3">
