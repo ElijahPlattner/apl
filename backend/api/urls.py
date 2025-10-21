@@ -2,10 +2,42 @@ from django.urls import path
 from . import views
 from .views import RegisterView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .views import AnalyzePDFView
 
 urlpatterns = [
-    path('hello/', views.hello_world),
-    path('register/', RegisterView.as_view(), name='register'),
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    #path: http://127.0.0.1:8000/api/hello
+    #body: 
+        #{}
+    path('hello', views.hello_world),
+
+    #path: http://127.0.0.1:8000/api/register
+    #body: 
+        # {
+        # "username": "exampleUsername",
+        # "email": "example@example.com",
+        # "password": "MyStrongPass123!",
+        # "password2": "MyStrongPass123!",
+        # "first_name": "Example",
+        # "last_name": "User"
+        # }
+
+    path('register', RegisterView.as_view(), name='register'),
+
+    #path: http://127.0.0.1:8000/api/login
+    #body:
+        # {
+        # "username": "exampleUsername",
+        # "password": "MyStrongPass123!"
+        # }
+    path('login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+
+    #path:
+    #body:
+    path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+
+    #path: http://127.0.0.1:8000/api/analyze
+    #body: file
+    path('analyze', AnalyzePDFView.as_view(), name='analyze'),
+
 ]
