@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Add this import
 
 function SignIn() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // Add this state
 
     const handleSignIn = () => {
         setError('');
-        fetch('http://localhost:8000/api/login/', {
+        fetch('http://127.0.0.1:8000/api/login/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ "username": username, "password": password })
         })
             .then(res => {
                 if (!res.ok) {
@@ -22,13 +24,14 @@ function SignIn() {
                 if (data.access && data.refresh) {
                     localStorage.setItem('access', data.access);
                     localStorage.setItem('refresh', data.refresh);
-                    window.location.href = '/DoStuff';
+                    window.location.href = '/Dashboard';
                 } else {
                     throw new Error('Login failed');
                 }
             })
             .catch(err => {
                 setError('Sign in failed. Please check your username and password.');
+                console.log('Sign in error:', err.message); // Log error to console
             });
     };
 
@@ -54,14 +57,23 @@ function SignIn() {
                 </div>
                 <div className="mb-3">
                     <label htmlFor="password" className="form-label">Password</label>
-                    <input
-                        type="password"
-                        className="form-control"
-                        id="password"
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                    />
+                    <div className="input-group">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            className="form-control"
+                            id="password"
+                            placeholder="Enter your password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                        />
+                        <span
+                            className="input-group-text"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </span>
+                    </div>
                 </div>
                 <button className="btn btn-primary" onClick={handleSignIn}>Sign In</button>
                 <div className="mt-3 text-center">

@@ -18,8 +18,9 @@
 /* When flagged, turn button red */
 .btn-listbutton.flagged {
     background-color: #e53935;
-    color: #fff;
+    color: #222;
     border-color: #c62828;
+    box-shadow: none;
 }
 
 /* Flag icon circle */
@@ -68,8 +69,8 @@
 }
 
 .btn-listbutton.flagged:hover {
-    background-color: #e53935;
-    color: #fff;
+    background-color: #fff;
+    color: #222;
     border-color: #c62828;
     box-shadow: 0 6px 24px rgba(60, 60, 60, 0.12);
     filter: none;
@@ -84,6 +85,13 @@
 .btn-listbutton.flagged span {
     color: #fff !important;
     transition: none;
+}
+
+.btn-listbutton.flagged:hover span,
+.btn-listbutton.flagged:focus span,
+.btn-listbutton.flagged:active span {
+    color: #c62828 !important;
+    /* Ensure hover/focus/active also use dark red */
 }
 
 /* Divider line between flag and text */
@@ -123,4 +131,22 @@
 .flag-btn-circle i {
     font-size: 1.2rem;
     color: #fff;
+}
+
+/* Focused/selected button with light green color scheme */
+.btn-listbutton:focus,
+.btn-listbutton:active {
+    background-color: #d4f8e8;
+    color: #222;
+    outline: 2px solid #34c759;
+    box-shadow: 0 0 0 2px #34c75933;
+}
+
+.btn-listbutton.flagged:focus,
+.btn-listbutton.flagged:active {
+    background-color: #fff;
+    color: #222;
+    border-color: #c62828;
+    box-shadow: 0 6px 24px rgba(60, 60, 60, 0.12);
+    filter: none;
 }

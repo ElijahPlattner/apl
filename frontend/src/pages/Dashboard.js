@@ -1,16 +1,39 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate, Link } from "react-router-dom";
 //content imports
 import Analyze from './DoStuff/Analyze.js';
 import History from './DoStuff/History.js';
 import PurchaseCreditsModal from './PurchaseCreditsModal.js';
+import Profile from './DoStuff/Profile.js';
 
 const DoStuff = () => {
     const [contentOpen, setContentOpen] = React.useState("Analyze");
+    const navigate = useNavigate();
     const [showProfileMenu, setShowProfileMenu] = React.useState(false);
     const profileMenuRef = useRef(null);
     const profileButtonRef = useRef(null);
     const [sidebarExpanded, setSidebarExpanded] = React.useState(true);
     const [showCreditsModal, setShowCreditsModal] = useState(false);
+
+
+    useEffect(() => {
+        const accessToken = localStorage.getItem('access');
+        const refreshToken = localStorage.getItem('refresh');
+
+        //parse jwt to check expiry here later
+        const parsedAccess = accessToken ? JSON.parse(atob(accessToken.split('.')[1])) : null;
+        const parsedRefresh = refreshToken ? JSON.parse(atob(refreshToken.split('.')[1])) : null;
+
+        console.log('Access Token:', accessToken);
+        console.log('Refresh Token:', refreshToken);
+        console.log('Parsed Access Token:', parsedAccess);
+        console.log('Parsed Refresh Token:', parsedRefresh);
+
+        if (!accessToken || !refreshToken) {
+            navigate('/Signin');
+        }
+
+    }, [navigate]);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -41,11 +64,25 @@ const DoStuff = () => {
         setContentOpen("History");
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        window.location.href = '/';
+    };
+
     return (
         <>
             <nav className="navbar px-4">
                 <div className="d-flex flex-row justify-content-between align-items-center w-100">
                     <div className="d-flex flex-row">
+                        <button
+                            className="btn btn-link text-white me-3"
+                            style={{ fontSize: '1.5rem', paddingLeft: 0, paddingRight: 0 }}
+                            onClick={() => setSidebarExpanded(!sidebarExpanded)}
+                            aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
+                        >
+                            <i className={`bi bi-list`}></i>
+                        </button>
                         {sidebarExpanded && (
                             <span
                                 style={{
@@ -61,14 +98,7 @@ const DoStuff = () => {
                                 APL Dashboard
                             </span>
                         )}
-                        <button
-                            className="btn btn-link text-white me-3"
-                            style={{ fontSize: '1.5rem', paddingLeft: 0, paddingRight: 0 }}
-                            onClick={() => setSidebarExpanded(!sidebarExpanded)}
-                            aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
-                        >
-                            <i className={`bi ${sidebarExpanded ? "bi-chevron-left" : "bi-list"}`}></i>
-                        </button>
+
 
                     </div>
 
@@ -96,7 +126,7 @@ const DoStuff = () => {
                             >
                                 <button className="dropdown-item" onClick={() => alert('Profile clicked!')}>Profile</button>
                                 <button className="dropdown-item" onClick={() => alert('Settings clicked!')}>Settings</button>
-                                <button className="dropdown-item" onClick={() => alert('Logout clicked!')}>Logout</button>
+                                <button className="dropdown-item" onClick={() => handleLogout()}>Logout</button>
                             </div>
                         )}
                     </div>
@@ -127,6 +157,12 @@ const DoStuff = () => {
                                     {sidebarExpanded && <span className="item-name">History</span>}
                                 </a>
                             </li>
+                            <li className={`nav-item${contentOpen === "Profile" ? " active" : ""}`}>
+                                <a className="nav-link" onClick={() => setContentOpen("Profile")} style={{ justifyContent: 'center', display: 'flex', alignItems: 'center' }}>
+                                    <i className="bi bi-person me-2"></i>
+                                    {sidebarExpanded && <span className="item-name">Profile</span>}
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </aside>
@@ -137,6 +173,8 @@ const DoStuff = () => {
                             <Analyze setShowCreditsModal={setShowCreditsModal} setContentOpen={setContentOpen} />
                         ) : contentOpen === "History" ? (
                             <History setShowCreditsModal={setShowCreditsModal} setContentOpen={setContentOpen} />
+                        ) : contentOpen === "Profile" ? (
+                            <Profile setShowCreditsModal={setShowCreditsModal} setContentOpen={setContentOpen} />
                         ) : (
                             <div className="container mt-4">
                                 <h2>Some thing bad happened</h2>
