@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 //content imports
 import Analyze from './DoStuff/Analyze.js';
 import History from './DoStuff/History.js';
-import PurchaseTokensModal from './PurchaseTokensModal.js';
+import PurchaseCreditsModal from './PurchaseCreditsModal.js';
 
 const DoStuff = () => {
     const [contentOpen, setContentOpen] = React.useState("Analyze");
@@ -10,7 +10,7 @@ const DoStuff = () => {
     const profileMenuRef = useRef(null);
     const profileButtonRef = useRef(null);
     const [sidebarExpanded, setSidebarExpanded] = React.useState(true);
-    const [showTokensModal, setShowTokensModal] = useState(false);
+    const [showCreditsModal, setShowCreditsModal] = useState(false);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -62,7 +62,7 @@ const DoStuff = () => {
                             </span>
                         )}
                         <button
-                            className="btn"
+                            className="btn btn-link text-white me-3"
                             style={{ fontSize: '1.5rem', paddingLeft: 0, paddingRight: 0 }}
                             onClick={() => setSidebarExpanded(!sidebarExpanded)}
                             aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
@@ -73,8 +73,8 @@ const DoStuff = () => {
                     </div>
 
                     <div className="d-flex flex-row align-items-center" style={{ position: 'relative' }}>
-                        <button className="btn btn-primary me-3" onClick={() => setShowTokensModal(true)}>
-                            Purchase Tokens
+                        <button className="btn btn-primary me-3" onClick={() => setShowCreditsModal(true)}>
+                            Purchase Credits
                         </button>
                         <span className="navbar-text mx-3">
                             Credits : Gazillions
@@ -124,19 +124,19 @@ const DoStuff = () => {
                             <li className={`nav-item${contentOpen === "History" ? " active" : ""}`}>
                                 <a className="nav-link" onClick={handleHistoryClick} style={{ justifyContent: 'center', display: 'flex', alignItems: 'center' }}>
                                     <i className="bi bi-download me-2"></i>
-                                    {sidebarExpanded && <span className="item-name">Export</span>}
+                                    {sidebarExpanded && <span className="item-name">History</span>}
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </aside>
 
-                <div style={{ flex: 1, padding: '2rem' }}>
+                <div className="main-content" style={{ flex: 1, padding: '2rem' }}>
                     {
                         contentOpen === "Analyze" ? (
-                            <Analyze setShowTokensModal={setShowTokensModal} />
+                            <Analyze setShowCreditsModal={setShowCreditsModal} setContentOpen={setContentOpen} />
                         ) : contentOpen === "History" ? (
-                            <History setShowTokensModal={setShowTokensModal} />
+                            <History setShowCreditsModal={setShowCreditsModal} setContentOpen={setContentOpen} />
                         ) : (
                             <div className="container mt-4">
                                 <h2>Some thing bad happened</h2>
@@ -145,7 +145,7 @@ const DoStuff = () => {
                     }
                 </div>
             </div>
-            <PurchaseTokensModal show={showTokensModal} onClose={() => setShowTokensModal(false)} />
+            <PurchaseCreditsModal show={showCreditsModal} onClose={() => setShowCreditsModal(false)} />
         </>
     );
 };
