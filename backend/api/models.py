@@ -29,3 +29,23 @@ class Lexicon(models.Model):
 
     def __str__(self):
         return f"{self.rank}: {self.word}"
+
+class LookedUpWords(models.Model):
+    id = models.AutoField(primary_key=True)
+    word = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        db_table = "looked_up_words"
+
+    def __str__(self):
+        return self.word
+
+class SkipWords(models.Model):  
+    id = models.AutoField(primary_key=True)
+    word = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        db_table = "skip_words"
+
+    def __str__(self):
+        return self.word

@@ -1,4 +1,6 @@
 backend/venv
+.DS_Store
+backend/db.sqlite3
 backend/api/__pycache__/admin.cpython-313.pyc
 backend/api/__pycache__/__init__.cpython-313.pyc
 backend/api/__pycache__/apps.cpython-313.pyc
@@ -11,4 +13,3 @@ backend/backend/__pycache__/__init__.cpython-313.pyc
 backend/backend/__pycache__/settings.cpython-313.pyc
 backend/backend/__pycache__/urls.cpython-313.pyc
 backend/backend/__pycache__/wsgi.cpython-313.pyc
-.DS_Store
