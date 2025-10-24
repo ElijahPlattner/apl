@@ -1,0 +1,121 @@
+#Dashboard {
+    position: relative;
+    z-index: 10;
+    /* Higher than sidebar or background */
+}
+
+.navbar {
+    position: relative;
+    z-index: 20;
+    /* Even higher if you want navbar above everything */
+}
+
+.sidebar {
+    position: relative;
+    z-index: 5;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 220px;
+    min-width: 60px;
+    max-width: 260px;
+    /* Optional: set a reasonable max width */
+    padding: 0.75rem 1rem;
+    box-sizing: border-box;
+}
+
+.sidebar.collapsed {
+    width: 75px;
+    min-width: 75px;
+    max-width: 75px;
+    /* No opacity or translateX, so it stays visible and just shrinks */
+}
+
+.sidebar.expanded {
+    width: 220px;
+    min-width: 220px;
+    max-width: 260px;
+}
+
+.sidebar.collapsed .nav-link {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    height: 48px;
+    /* Ensures vertical centering */
+}
+
+.sidebar.collapsed .nav-link i {
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.sidebar.collapsed .nav-item {
+
+    padding: 0 !important;
+    text-align: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 48px;
+    /* Matches nav-link for vertical centering */
+}
+
+.sidebar.collapsed .sidebar-body,
+.sidebar.collapsed .navbar-nav {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.sidebar.collapsed .navbar-nav {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.sidebar .nav-link.active,
+.sidebar .nav-item.active .nav-link {
+    background: #eafbe6;
+    color: #1d9b36 !important;
+    font-weight: bold;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(29, 155, 54, 0.08);
+}
+
+.sidebar.collapsed .nav-link.active,
+.sidebar.collapsed .nav-item.active .nav-link {
+    background: #eafbe6;
+    color: #1d9b36 !important;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(29, 155, 54, 0.08);
+}
+
+.sidebar+.main-content {
+    margin-left: 0 !important;
+}
+
+body.modal-open {
+    padding-right: 0 !important;
+}
+
+.main-content {
+    overflow-y: auto;
+    height: calc(100vh - 56px);
+    /* 56px is your navbar height */
+}
+
+.sidebar.collapsed .nav-link i {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.sidebar .nav-link i {
+    padding-left: 0;
+    padding-right: 0;
+}

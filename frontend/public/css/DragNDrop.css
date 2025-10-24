@@ -1,0 +1,12 @@
+.DragNDrop {
+    border: 2px dashed #1d9b36;
+    border-radius: 1rem;
+    background: #f8f9fa;
+    padding: 2rem;
+    text-align: center;
+    color: #23272A;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(35, 39, 42, 0.08);
+    font-size: 1.1rem;
+    max-width: 500px;
+}
