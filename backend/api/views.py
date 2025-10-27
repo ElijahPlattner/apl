@@ -13,6 +13,8 @@ import tempfile
 from pathlib import Path
 import os
 import json, re
+from api.pdf_analyzer import analyze_pdf
+
 
 
 
@@ -28,70 +30,38 @@ class RegisterView(generics.CreateAPIView):
 
 class AnalyzePDFView(APIView):
     def post(self, request):
-        # Require a file upload
+        # ✅ Require a file upload
         if 'file' not in request.FILES:
             return Response({"error": "Please upload a PDF file."}, status=400)
 
         pdf_file = request.FILES['file']
 
-        # Save uploaded PDF to a temporary file
+        # ✅ Save uploaded PDF to a temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf:
             for chunk in pdf_file.chunks():
                 tmp_pdf.write(chunk)
             tmp_pdf_path = tmp_pdf.name
 
-        # Path to your analyzer script
-        # analyzer_script = Path(__file__).resolve().parent.parent / "analyzer" / "analyze.py"
-        analyzer_script = Path(__file__).resolve().parent.parent / "analyzer" / "analyze.py"
         try:
-            print("Running analyzer at:", analyzer_script)
-            # Run the analyzer as a subprocess
-            # Run the analyzer
-            result = subprocess.run(
-                ["python3", str(analyzer_script), tmp_pdf_path],
-                capture_output=True,
-                text=True,
-                timeout=60
-            )
+            # ✅ Run analysis directly (in-process, uses shared word_cache)
+            print(f"Running in-process PDF analysis for: {tmp_pdf_path}")
+            result = analyze_pdf(tmp_pdf_path)
+
+            # Clean up temporary file
             os.remove(tmp_pdf_path)
 
-            if result.returncode != 0:
-                return Response({"error": result.stderr.strip()}, status=500)
-
-            # Extract JSON from stdout (ignores print statements before it)
-            stdout_text = result.stdout.strip()
-
-            match = re.search(r'\{.*\}', stdout_text, re.DOTALL)
-            if not match:
-                return Response({
-                    "error": "No JSON output found from analyzer.",
-                    "raw_output": stdout_text
-                }, status=500)
-
-            json_str = match.group(0)
-            try:
-                analysis_output = json.loads(json_str)
-            except json.JSONDecodeError:
-                return Response({
-                    "error": "Invalid JSON format from analyzer.",
-                    "raw_output": stdout_text
-                }, status=500)
-
-            # Now you can access word lists directly
-            caps_list = analysis_output.get("caps_words", [])
-            uncommon_list = analysis_output.get("uncommon_words", [])
-            unknown_list = analysis_output.get("unknown_words", [])
-
+            # ✅ Return structured results
             return Response({
                 "message": "PDF analyzed successfully.",
-                "caps_words": caps_list,
-                "uncommon_words": uncommon_list,
-                "unknown_words": unknown_list,
+                "counts": result.get("counts", {}),
+                "caps_words": result.get("caps_words", []),
+                "uncommon_words": result.get("uncommon_words", []),
+                "unknown_words": result.get("unknown_words", []),
+                "looked_up_words": result.get("looked_up_words", []),
             })
 
-        except subprocess.TimeoutExpired:
-            os.remove(tmp_pdf_path)
-            return Response({"error": "Analysis timed out."}, status=500)
         except Exception as e:
-            os.remove(tmp_pdf_path)
+            # Always clean up temporary file on failure
+            if os.path.exists(tmp_pdf_path):
+                os.remove(tmp_pdf_path)
             return Response({"error": str(e)}, status=500)
