@@ -3,6 +3,7 @@ from . import views
 from .views import RegisterView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import AnalyzePDFView
+from .views import UserAnalyzationHistoryView
 
 urlpatterns = [
 
@@ -37,7 +38,12 @@ urlpatterns = [
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
 
     #path: http://127.0.0.1:8000/api/analyze
-    #body: file
+    #body: file, user_id
+
     path('analyze', AnalyzePDFView.as_view(), name='analyze'),
+
+    #path: http://127.0.0.1:8000/api/analyze/<user_id>/history
+    #body: {}
+    path('analyze/<int:user_id>/history', UserAnalyzationHistoryView.as_view(), name='user_analyzation_history'),
 
 ]

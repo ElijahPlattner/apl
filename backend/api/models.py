@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Lexicon(models.Model):
     rank = models.IntegerField(primary_key=True)
@@ -49,3 +50,24 @@ class SkipWords(models.Model):
 
     def __str__(self):
         return self.word
+
+class Analyzation(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="analyzations", null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    caps_count = models.IntegerField()
+    common_count = models.IntegerField()
+    uncommon_count = models.IntegerField()
+    unknown_count = models.IntegerField()
+    looked_up_count = models.IntegerField()
+    skip_count = models.IntegerField()
+    file_name = models.CharField(max_length=255)
+    file_path = models.CharField(max_length=1024)
+    payment_id = models.IntegerField()
+    
+    class Meta:
+        db_table = "analyzation"
+
+    def __str__(self):
+        return f"{self.file_name} (user {self.user_id})"

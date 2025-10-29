@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password, get_default_password_validators
 from django.core.exceptions import ValidationError as DjangoValidationError
+from api.models import Analyzation
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -73,3 +74,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class AnalyzationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Analyzation
+        # You can use "__all__" to include every field, or list them explicitly
+        fields = "__all__"

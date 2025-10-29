@@ -2,6 +2,7 @@ import subprocess
 import time
 import json
 from pathlib import Path
+from api import word_cache
 
 
 def parse_pdf(filepath: str):
