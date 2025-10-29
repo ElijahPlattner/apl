@@ -50,7 +50,7 @@ def analyze_pdf(filepath: str):
     words = parse_pdf(filepath)
     words = clean_words(words)
 
-    caps_count = common_count = uncommon_count = unknown_count = looked_up_count = 0
+    caps_count = uncommon_count = unknown_count = looked_up_count = 0
     caps_words, uncommon_words, looked_up_words, unknown_words = [], [], [], []
 
     for w in words:
@@ -62,11 +62,11 @@ def analyze_pdf(filepath: str):
         elif w in word_cache.caps_map:
             caps_count += 1
             caps_words.append(w)
-        elif w in word_cache.common_map:
-            common_count += 1
         elif w in word_cache.uncommon_map:
             uncommon_count += 1
             uncommon_words.append(w)
+        elif w in word_cache.common_map:
+            continue
         else:
             unknown_count += 1
             unknown_words.append(w)
@@ -76,11 +76,10 @@ def analyze_pdf(filepath: str):
     return {
         "counts": {
             "caps": caps_count,
-            "common": common_count,
             "uncommon": uncommon_count,
             "unknown": unknown_count,
             "looked_up": looked_up_count,
-            "elapsed": round(elapsed, 3),
+            "elapsed_time": round(elapsed, 3),
         },
         "caps_words": caps_words,
         "uncommon_words": uncommon_words,

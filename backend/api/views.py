@@ -59,13 +59,12 @@ class RegisterView(generics.CreateAPIView):
 
 
 class AnalyzePDFView(APIView):
-
     def post(self, request):
         # Require file
         if 'file' not in request.FILES:
             return Response({"error": "Please upload a PDF file."}, status=400)
 
-        # Require user_id in POST data
+        # Require user_id
         user_id = request.data.get('user_id')
         if not user_id:
             return Response({"error": "Please provide user_id in the request."}, status=400)
@@ -92,38 +91,27 @@ class AnalyzePDFView(APIView):
             print(f"Running in-process PDF analysis for: {tmp_pdf_path} (user_id={user_id})")
             result = analyze_pdf(tmp_pdf_path)
 
-            # Get absolute path to the analyzed_outputs folder (one level up)
-            base_dir = Path(__file__).resolve().parent.parent  # adjust .parent depth if needed
+            # Expected result keys (based on your file-saver):
+            #   caps_words, uncommon_words, unknown_words, looked_up_words, counts, etc.
+            base_dir = Path(__file__).resolve().parent.parent
             output_dir = base_dir / "analyzed_outputs" / f"user_{user_id}"
 
-            # Save result file and get its absolute path
             output_file = save_analysis_to_file(result, output_dir=str(output_dir.resolve()))
             output_name = Path(output_file).name
 
-            # Parse counts safely
             counts = result.get("counts", {})
-            caps = counts.get("caps", 0)
-            common = counts.get("common", 0)
-            uncommon = counts.get("uncommon", 0)
-            unknown = counts.get("unknown", 0)
-            looked_up = counts.get("looked_up", 0)
-            skip = counts.get("skip", 0)
 
-            # Save to DB
             analyzation = Analyzation.objects.create(
                 user=user,
-                caps_count=caps,
-                common_count=common,
-                uncommon_count=uncommon,
-                unknown_count=unknown,
-                looked_up_count=looked_up,
-                skip_count=skip,
+                caps_count=counts.get("caps", len(result.get("caps_words", []))),
+                uncommon_count=counts.get("uncommon", len(result.get("uncommon_words", []))),
+                unknown_count=counts.get("unknown", len(result.get("unknown_words", []))),
+                looked_up_count=counts.get("looked_up", len(result.get("looked_up_words", []))),
                 file_name=output_name,
                 file_path=str(output_file),
-                payment_id=0,  # placeholder if not applicable yet
+                payment_id=0,
             )
 
-            # Clean up tmp file
             os.remove(tmp_pdf_path)
 
             return Response({
@@ -132,7 +120,13 @@ class AnalyzePDFView(APIView):
                 "username": user.username,
                 "analyzation_id": analyzation.id,
                 "counts": counts,
-                "output_file": output_file,
+                "word_lists": {
+                    "caps": result.get("caps_words", []),
+                    "uncommon": result.get("uncommon_words", []),
+                    "unknown": result.get("unknown_words", []),
+                    "looked_up": result.get("looked_up_words", []),
+                },
+                "output_file": str(output_file),
             })
 
         except Exception as e:
@@ -147,3 +141,59 @@ class UserAnalyzationHistoryView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs['user_id']
         return Analyzation.objects.filter(user__id=user_id).order_by('-created_at')
+
+class AnalyzationDetailView(generics.RetrieveAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = AnalyzationSerializer
+    queryset = Analyzation.objects.all()
+    lookup_field = 'id'
+    lookup_url_kwarg = 'analyzation_id'
+
+    def retrieve(self, request, *args, **kwargs):
+        analyzation = self.get_object()
+
+        # Parse the .apl file from disk
+        file_path = analyzation.file_path
+        if not os.path.exists(file_path):
+            return Response({"error": f"Analysis file not found at {file_path}"}, status=404)
+
+        word_lists = {
+            "caps": [],
+            "uncommon": [],
+            "unknown": [],
+            "looked_up": [],
+        }
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    # Each line looks like: word|category
+                    parts = line.strip().split("|")
+                    if len(parts) == 2:
+                        word, category = parts
+                        if category in word_lists:
+                            word_lists[category].append(word)
+
+            # Compute counts from lists (for consistency with AnalyzePDFView)
+            counts = {
+                "caps": len(word_lists["caps"]),
+                "uncommon": len(word_lists["uncommon"]),
+                "unknown": len(word_lists["unknown"]),
+                "looked_up": len(word_lists["looked_up"]),
+            }
+
+            return Response({
+                "message": "Analyzation loaded successfully.",
+                "analyzation_id": analyzation.id,
+                "user_id": analyzation.user.id if analyzation.user else None,
+                "username": analyzation.user.username if analyzation.user else None,
+                "counts": counts,
+                "word_lists": word_lists,
+                "file_name": analyzation.file_name,
+                "file_path": analyzation.file_path,
+                "created_at": analyzation.created_at,
+                "modified_at": analyzation.modified_at,
+            })
+
+        except Exception as e:
+            return Response({"error": f"Failed to parse file: {str(e)}"}, status=500)
