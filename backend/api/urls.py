@@ -3,6 +3,8 @@ from . import views
 from .views import RegisterView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import AnalyzePDFView
+from .views import UserAnalyzationHistoryView
+from .views import AnalyzationDetailView
 
 urlpatterns = [
 
@@ -12,6 +14,7 @@ urlpatterns = [
     path('hello', views.hello_world),
 
     #path: http://127.0.0.1:8000/api/register
+    #method: POST
     #body: 
         # {
         # "username": "exampleUsername",
@@ -25,6 +28,7 @@ urlpatterns = [
     path('register', RegisterView.as_view(), name='register'),
 
     #path: http://127.0.0.1:8000/api/login
+    #method: POST
     #body:
         # {
         # "username": "exampleUsername",
@@ -37,7 +41,21 @@ urlpatterns = [
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
 
     #path: http://127.0.0.1:8000/api/analyze
-    #body: file
+    #method: POST
+    #body: file, user_id
+
     path('analyze', AnalyzePDFView.as_view(), name='analyze'),
+
+    
+    #path: http://127.0.0.1:8000/api/analyze/user/<user_id>/history
+    #method: GET
+    #body: {}
+    path('analyze/user/<int:user_id>/history', UserAnalyzationHistoryView.as_view(), name='user_analyzation_history'),
+
+    #path: http://127.0.0.1:8000/api/analyze/analyzation/<analyzation_id>
+    #method: GET
+    #body: {}
+
+    path('analyze/analyzation/<int:analyzation_id>', AnalyzationDetailView.as_view(), name='analyzation_detail'),
 
 ]

@@ -2,21 +2,33 @@ import subprocess
 import time
 import json
 from pathlib import Path
+from api import word_cache
 
 
 def parse_pdf(filepath: str):
-    """Parse PDF into a list of words using pdftotext."""
-    cmd = ['pdftotext', '-nopgbrk', filepath, 'result.txt']
+    """Parse PDF into a list of words using pdftotext, then clean up result.txt."""
+    output_path = Path('result.txt')
+
+    cmd = ['pdftotext', '-nopgbrk', filepath, str(output_path)]
     ret = subprocess.run(cmd, capture_output=True)
 
     if ret.returncode != 0:
         raise RuntimeError(f"Error running pdftotext: {ret.stderr.decode('utf-8')}")
 
-    text_path = Path('result.txt')
-    if not text_path.exists():
+    if not output_path.exists():
         raise RuntimeError("Could not open result.txt")
 
-    return text_path.read_text(encoding='utf-8').split()
+    try:
+        text = output_path.read_text(encoding='utf-8')
+        return text.split()
+    finally:
+        # Always try to delete, even if an error happens during reading
+        try:
+            output_path.unlink()
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(f"⚠️ Warning: could not delete {output_path}: {e}")
 
 
 def clean_words(words):
@@ -49,7 +61,7 @@ def analyze_pdf(filepath: str):
     words = parse_pdf(filepath)
     words = clean_words(words)
 
-    caps_count = common_count = uncommon_count = unknown_count = looked_up_count = 0
+    caps_count = uncommon_count = unknown_count = looked_up_count = 0
     caps_words, uncommon_words, looked_up_words, unknown_words = [], [], [], []
 
     for w in words:
@@ -61,11 +73,11 @@ def analyze_pdf(filepath: str):
         elif w in word_cache.caps_map:
             caps_count += 1
             caps_words.append(w)
-        elif w in word_cache.common_map:
-            common_count += 1
         elif w in word_cache.uncommon_map:
             uncommon_count += 1
             uncommon_words.append(w)
+        elif w in word_cache.common_map:
+            continue
         else:
             unknown_count += 1
             unknown_words.append(w)
@@ -75,11 +87,10 @@ def analyze_pdf(filepath: str):
     return {
         "counts": {
             "caps": caps_count,
-            "common": common_count,
             "uncommon": uncommon_count,
             "unknown": unknown_count,
             "looked_up": looked_up_count,
-            "elapsed": round(elapsed, 3),
+            "elapsed_time": round(elapsed, 3),
         },
         "caps_words": caps_words,
         "uncommon_words": uncommon_words,
