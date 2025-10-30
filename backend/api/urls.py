@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import AnalyzePDFView
 from .views import UserAnalyzationHistoryView
 from .views import AnalyzationDetailView
+from .views import CustomTokenObtainPairView
 
 urlpatterns = [
 
@@ -34,7 +35,7 @@ urlpatterns = [
         # "username": "exampleUsername",
         # "password": "MyStrongPass123!"
         # }
-    path('login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login', CustomTokenObtainPairView.as_view(), name='custom_token_obtain_pair'),
 
     #path:
     #body:

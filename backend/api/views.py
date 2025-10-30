@@ -17,7 +17,7 @@ import time
 import os
 import json, re
 from api.pdf_analyzer import analyze_pdf
-
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 @api_view(['GET'])
@@ -56,6 +56,48 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    """
+    Extends SimpleJWT's login view to also set cookies.
+    """
+    serializer_class = TokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        # Run the normal token generation
+        response = super().post(request, *args, **kwargs)
+        data = response.data
+
+        # Find user ID
+        username = request.data.get("username")
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
+
+        # Set cookies
+        response.set_cookie(
+            key="user_id",
+            value=user.id,
+            httponly=True,           # JavaScript cannot access
+            secure=True,            # True in production (HTTPS only)
+            samesite="Strict",
+            max_age=12 * 60 * 60,    # 12 hours
+        )
+
+        response.set_cookie(
+            key="username",
+            value=user.username,
+            httponly=True,          # Optional, depends on your needs
+            secure=True,
+            samesite="Strict",
+            max_age=12 * 60 * 60,
+        )
+
+        # You can add others (org_id, client_id, etc.) if they’re linked via FK
+        # response.set_cookie("org_id", user.organization.id, ...)
+
+        return response
 
 
 class AnalyzePDFView(APIView):
